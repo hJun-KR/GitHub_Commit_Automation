@@ -1,4 +1,4 @@
-# GitHub Commit Automation Script
+# GitHub Commit Automation Script by HongJun
 
 이 스크립트는 GitHub에 변경 사항을 커밋하고 푸시하는 과정을 자동화합니다.
 
