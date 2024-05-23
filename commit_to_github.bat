@@ -10,7 +10,7 @@ git config advice.addIgnoredFile false
 if "!GITHUB_TOKEN!"=="" (
     echo GITHUB_TOKEN is not set. Please check the env file.
     pause
-    exit /b 1
+    exit /b 
 )
 
 if "!GITHUB_REPO!"=="" (
@@ -62,6 +62,7 @@ rem Create or update .gitignore file
     echo.
     echo # But track these files
     echo !.gitignore
+    echo !README.md
     echo !%file_name%
 ) > .gitignore
 
@@ -70,6 +71,22 @@ git add -f .gitignore
 if errorlevel 1 (
     echo.
     echo Error: Unable to add the .gitignore file. Please check the file and try again.
+    pause
+    goto :eof
+)
+
+rem Create or update README.md file
+(
+    echo # GitHub Commit Automation Script made By ^[HongJun^(hJun-KR^)^](https://github.com/hJun-KR^)
+    echo.
+    echo This script automates the process of committing and pushing changes to GitHub.
+) > README.md
+
+rem Add README.md to the staging area
+git add -f README.md
+if errorlevel 1 (
+    echo.
+    echo Error: Unable to add the README.md file. Please check the file and try again.
     pause
     goto :eof
 )
