@@ -7,6 +7,7 @@ call :checkgit
 git config --global core.autocrlf true
 git config advice.addIgnoredFile false
 
+
 if "!GITHUB_TOKEN!"=="" (
     echo GITHUB_TOKEN is not set. Please check the env file.
     pause
@@ -23,7 +24,6 @@ if "!REPO_PATH!"=="" (
     echo REPO_PATH is not set. Please check the env file.
     pause
     exit /b 1
-)
 
 :checkgit
 if not exist "!REPO_PATH!\.git\" (
@@ -55,16 +55,23 @@ if exist .git\index.lock (
     del /f .git\index.lock
 )
 
-rem Create or update .gitignore file
-(
-    echo # Ignore everything
-    echo *
-    echo.
-    echo # But track these files
-    echo !.gitignore
-    echo !README.md
-    echo !%file_name%
-) > .gitignore
+rem Update or create .gitignore file
+if exist .gitignore (
+    findstr /x "README.md" .gitignore > nul || echo README.md >> .gitignore
+    findstr /x "%file_name%" .gitignore > nul || echo %file_name% >> .gitignore
+    findstr /x ".gitignore" .gitignore > nul || echo /.gitignore >> .gitignore
+
+) else (
+    (
+        echo # Ignore everything
+        echo *
+        echo.
+        echo # But track these files
+        echo !.gitignore
+        echo !README.md
+        echo !%file_name%
+    ) > .gitignore
+)
 
 rem Add .gitignore to the staging area
 git add -f .gitignore
@@ -75,12 +82,28 @@ if errorlevel 1 (
     goto :eof
 )
 
-rem Create or update README.md file
-(
-    echo # GitHub Commit Automation Script made By ^[HongJun^(hJun-KR^)^](https://github.com/hJun-KR^)
+rem Update or create README.md file
+if not exist README.md (
+    (
+        echo # GitHub Commit Automation Script made By ^[HongJun^(hJun-KR^)^](https://github.com/hJun-KR^)
+        echo.
+        echo This script automates the process of committing and pushing changes to GitHub.
+    ) > README.md
+) else (
+    findstr "Made by" README.md > nul || (
+        echo.
+        echo Made by ^[HongJun^(hJun-KR^)^](https://github.com/hJun-KR^) >> README.md
+    )
+)
+
+rem Add README.md to the staging area if it's updated
+git add -f README.md
+if errorlevel 1 (
     echo.
-    echo This script automates the process of committing and pushing changes to GitHub.
-) > README.md
+    echo Error: Unable to add the README.md file. Please check the file and try again.
+    pause
+    goto :eof
+)
 
 rem Add README.md to the staging area
 git add -f README.md
@@ -130,6 +153,7 @@ echo          Commit and Push Successful
 echo ========================================
 pause
 goto :eof
+
 
 :header
 cls
